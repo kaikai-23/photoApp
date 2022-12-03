@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Photos</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sriracha&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <header>
+        <h1>My Photos</h1>
+    </header>
+
+    <div class="container">
+        <div id="img_unit">
+        </div>
+    </div>
+    <script>
+        var ajax = new XMLHttpRequest();
+        //openはAJAX通信を行う相手先のアドレス(サーバー上にあるファイルを読み込んでいる)
+        //JavaScriptはhttpsプロトコル（webサーバーを配置して使用するプロトコル）は対応しているが、ファイルを作成してそれを直接読み込ませている場合はファイルプロトコルが使用される（JavaScriptの制限がグッと厳しくなるので表示されない）
+        ajax.open('GET', 'https://h2o-space.com/htmlbook/images.php');
+        
+        
+        //リクエストの結果どんな形式で返ってくるかをあらかじめ指定しておく
+        ajax.responseType = 'json';
+        //sendを使って先ほど指定したファイルに対してリクエストを送る
+        //データをもらうだけなのでnull
+        ajax.send(null);
+
+        //以下AJAX通信で受け取ったファイルの処理
+        //onreadystatechangeが呼び出される
+        //その度にajaxの数字が2.3.4と変化する（AJAX通信を行なっている状況について随時更新してくれる）
+        //0→インスタンス化に成功、1→opened→openメソッドを利用した、2→headers_receibvedヘッダー受信できた、3→loadingデータを受信中である、4→done通信が完了した
+        ajax.onreadystatechange = function(){
+            alert(ajax.readyState);
+            //通信が終わったことを確認してからプログラムを実行することが必要
+            //XMLHttpRequest.DONEは上で言うと数字が4の時
+            //200は正しくデータが受信できているときに出力される番号
+            if (ajax.readyState === XMLHttpRequest.DONE && ajax.status === 200){
+                //thisはajaxオブジェクトを意味してる
+                for (var i=0; i<this.response.length; i++){
+                    //i番目のパスを取得
+                    alert(this.response[i].path);
+                    var data = this.response[i];
+
+                    var img = document.createElement('img');
+                    img.setAttribute('src', data.path);
+
+                    var caption = document.createElement('div');
+                    caption.className = 'inner';
+                    caption.innerHTML = '<p>' + data.caption + '<span>' + data.name + '</span></p>';
+
+                    var div = document.createElement('div');
+                    div.className = 'photo';
+                    div.appendChild(img);
+                    div.appendChild(caption);
+
+                    document.getElementById('img_unit').appendChild(div);
+                }
+            }
+        };
+    </script>
+</body>
+
+</html>
